@@ -1,0 +1,41 @@
+@import url("main.css");
+
+/**************************************/
+
+/* 입력 상자 */
+input {
+  font-family: 'IBM Plex Sans KR', sans-serif;
+  display: inline;
+  width: calc(100% - 50px);
+  height: 25px;
+  margin-top: 5px;
+  margin-left: 5px;
+  margin-right: 5px;
+  border-radius: 0px;
+  border: none;
+  border-bottom: 1px solid #bbbbbb;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/**************************************/
+
+input[type = checkbox] {
+  display: none;
+}
+
+input + label:after {
+  content: "⚪";
+}
+
+input:checked + label:after {
+  content: "😃";
+}

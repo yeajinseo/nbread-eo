@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>식사 비용 정산</title>
+  <style>
+    label {
+      display: block;
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>식사 비용 정산</h1>
+
+  <h2>메뉴 및 가격 입력</h2>
+  <form id="menuForm">
+    <label for="menuName">메뉴:</label>
+    <input type="text" id="menuName" required>
+
+    <label for="menuPrice">가격:</label>
+    <input type="number" id="menuPrice" min="0" required>
+
+    <button type="button" onclick="addMenu()">메뉴 추가</button>
+  </form>
+
+  <h2>식사 참가자 및 먹은 메뉴 선택</h2>
+  <form id="inputForm">
+    <label for="personName">이름:</label>
+    <input type="text" id="personName" required>
+
+    <label for="selectedMenu">먹은 메뉴:</label>
+    <select id="selectedMenu" required multiple>
+      <!-- 메뉴 선택 옵션은 JavaScript로 동적으로 생성됩니다. -->
+    </select>
+
+    <button type="button" onclick="addEntry()">참가자 추가</button>
+  </form>
+
+  <h2>입력된 메뉴 및 가격</h2>
+  <ul id="menuList"></ul>
+
+  <h2>선택된 항목</h2>
+  <ul id="selectedItems"></ul>
+
+  <h2>각 사람이 먹은 메뉴에 대한 비용</h2>
+  <ul id="individualCosts"></ul>
+
+  <script>
+    const menus = [];
+    const entries = [];
+
+    function addMenu() {
+      const menuName = document.getElementById('menuName').value;
+      const menuPrice = parseFloat(document.getElementById('menuPrice').value);
+
+      if (menuName && !isNaN(menuPrice) && menuPrice > 0) {
+        menus.push({ menuName, menuPrice });
+        updateMenuList();
+        updateMenuOptions();
+        // Clear input fields
+        document.getElementById('menuName').value = '';
+        document.getElementById('menuPrice').value = '';
+      } else {
+        alert('모든 필드를 올바르게 입력하세요.');
+      }
+    }
+
+    function addEntry() {
+      const personName = document.getElementById('personName').value;
+      const selectedMenu = document.getElementById('selectedMenu');
+      const selectedMenuNames = Array.from(selectedMenu.selectedOptions, option => option.text);
+
+      if (personName && selectedMenuNames.length > 0) {
+        entries.push({ personName, selectedMenuNames });
+        updateSelectedItems();
+        updateIndividualCosts();
+        // Clear input fields
+        document.getElementById('personName').value = '';
+        selectedMenu.selectedIndex = -1; // 초기화
+      } else {
+        alert('모든 필드를 올바르게 입력하세요.');
+      }
+    }
+
+    function updateMenuList() {
+      const menuList = document.getElementById('menuList');
+      menuList.innerHTML = '';
+
+      menus.forEach(menu => {
+        const listItem = document.createElement('li');
+        listItem.textContent = `${menu.menuName}: ${menu.menuPrice}원`;
+        menuList.appendChild(listItem);
+      });
+    }
+
+    function updateSelectedItems() {
+      const selectedItemsList = document.getElementById('selectedItems');
+      selectedItemsList.innerHTML = '';
+
+      entries.forEach(entry => {
+        const listItem = document.createElement('li');
+        listItem.textContent = `${entry.personName}: ${entry.selectedMenuNames.join(', ')}`;
+        selectedItemsList.appendChild(listItem);
+      });
+    }
+
+    function updateIndividualCosts() {
+      const individualCostsList = document.getElementById('individualCosts');
+      individualCostsList.innerHTML = '';
+
+      entries.forEach(entry => {
+        entry.selectedMenuNames.forEach(menuName => {
+          const menu = menus.find(menu => menu.menuName === menuName);
+          if (menu) {
+            const listItem = document.createElement('li');
+            listItem.textContent = `${entry.personName} (${menuName}): ${(menu.menuPrice / entry.selectedMenuNames.length).toFixed(2)}원`;
+            individualCostsList.appendChild(listItem);
+          }
+        });
+      });
+    }
+
+    function updateMenuOptions() {
+      const selectedMenu = document.getElementById('selectedMenu');
+      selectedMenu.innerHTML = '';
+
+      menus.forEach(menu => {
+        const option = document.createElement('option');
+        option.value = menu.menuName;
+        option.text = menu.menuName;
+        selectedMenu.appendChild(option);
+      });
+    }
+  </script>
+
+</body>
+</html>

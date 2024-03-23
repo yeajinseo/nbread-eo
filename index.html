@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="style/main.css" />
+    <link rel="stylesheet" type="text/css" href="style/buttons.css" />
+    <link rel="stylesheet" type="text/css" href="style/inputs.css" />
+    <title>ca 119 project</title>
+    <script src="script/main.js" defer></script>
+
+  </head>
+  <body>
+    <div class="container">
+      <div class="left-column">
+        <input
+          type="text"
+          id="personInput"
+          placeholder="닉네임"
+          onkeydown="handleEnterKey(event, addPerson, 'personInput')"
+        />
+        <button onclick="addPerson()" class="add-buttons">+</button>
+        <ul id="personList"></ul>
+      </div>
+
+      <div class="right-column">
+        <input
+          type="text"
+          id="itemInput"
+          placeholder="항목"
+          onkeydown="handleEnterOrTabKey(event, 'itemNumber')"
+        />
+        <input
+          type="number"
+          id="itemNumber"
+          placeholder="가격"
+          min="1"
+          onkeydown="handleEnterKey(event, addItem, 'itemInput')"
+        />
+        <button onclick="addItem()" class="add-buttons">+</button>
+        <ul id="itemList"></ul>
+      </div>
+    </div>
+
+    <div>
+      <a href="#tableContainer"
+        ><button
+          id="tableButton"
+          onclick="generateTable()"
+          class="edit-buttons"
+          disabled
+        >
+          상세 내역
+        </button></a
+      >
+      <a href="#resultContainer"
+        ><button
+          id="resultButton"
+          onclick="distributeNumbers()"
+          class="edit-buttons"
+          disabled
+        >
+          최종 정산금
+        </button></a
+      >
+      <div id="tableContainer"></div>
+      <div id="resultContainer"></div>
+    </div>
+  </body>
+</html>

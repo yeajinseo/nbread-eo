@@ -1,0 +1,66 @@
+@import url("main.css");
+
+/**************************************/
+
+button {
+  appearance: none;
+  background-color: #bbbbbb;
+  border: 0px;
+  border-radius: 5px;
+  color: #ffffff;
+  cursor: pointer;
+  display: inline-block;
+  font-family: "IBM Plex Sans KR", sans-serif;
+  text-decoration: none;
+  text-align: center;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+button:disabled,
+button[disabled] {
+  background-color: #dddddd;
+}
+
+button:enabled:active {
+  background-color: #999999;
+}
+
+/* 추가 버튼 */
+.add-buttons {
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 20px;
+  padding: 2px 6px;
+  position: relative;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+/* 상세 내역 및 최종 계산 버튼 */
+.edit-buttons {
+  width: 47%;
+  margin-left: 1%;
+  margin-right: 1%;
+  margin-bottom: 20px;
+  font-weight: 500;
+  line-height: 25px;
+}
+
+/**************************************/
+
+ul,
+ol {
+  font-family: "IBM Plex Sans KR", sans-serif;
+  list-style-type: "\231B";
+  padding: 0px;
+}
+
+li {
+  margin-bottom: 8px;
+  margin-right: 12px;
+  display: inline-block;
+}
+
+/**************************************/

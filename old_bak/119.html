@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="119_style.css">
+  <script src="119_func.js" defer></script>
+</head>
+<body>
+
+  <div class="container">
+    <div class="left-column">
+      <label for="personInput">Person Name:</label>
+      <input type="text" id="personInput" onkeydown="handleEnterKey(event, addPerson)">
+      <button onclick="addPerson()" class="edit-buttons">Add Person</button>
+      <ul id="personList"></ul>
+    </div>
+
+    <div class="right-column">
+      <label for="itemInput">Item Name:</label>
+      <input type="text" id="itemInput" onkeydown="handleEnterOrTabKey(event, 'itemNumber')">
+      <label for="itemNumber">Item Number:</label>
+      <input type="number" id="itemNumber" min="1" onkeydown="handleEnterKey(event, addItem)">
+      <button onclick="addItem()" class="edit-buttons">Add Item</button>
+      <ul id="itemList"></ul>
+    </div>
+  </div>
+
+  <div>
+    <button onclick="generateTable()" class="edit-buttons">Generate Table</button>
+    <button onclick="distributeNumbers()" class="edit-buttons">Distribute Numbers</button>
+  </div>
+
+  <div id="tableContainer"></div>
+  <div id="resultContainer"></div>
+
+</body>
+</html>
