@@ -1,10 +1,106 @@
 var persons = [];
 var items = [];
+var nicknamesData = null;
 
 var personIcon = "💸";
 var itemIcon = "👼🏻";
 
 var firstGenTable = true;
+
+// Load nicknames data when page loads
+function initializeApp() {
+  loadNicknamesData();
+}
+
+// Try multiple ways to ensure DOM is loaded
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeApp);
+} else {
+  // DOM is already loaded
+  initializeApp();
+}
+
+// Fallback: also try when window loads
+window.addEventListener('load', function() {
+  if (!nicknamesData) {
+    console.log('Retrying initialization on window load...');
+    initializeApp();
+  }
+});
+
+function loadNicknamesData() {
+  fetch('data/nicknames.json')
+    .then(response => response.json())
+    .then(data => {
+      nicknamesData = data;
+      populateClassDropdown();
+    })
+    .catch(error => {
+      console.error('Error loading nicknames:', error);
+    });
+}
+
+function populateClassDropdown() {
+  const classSelect = document.getElementById('classSelect');
+  if (!classSelect) {
+    console.error('classSelect element not found');
+    return;
+  }
+  
+  // 기존 옵션들을 모두 제거
+  classSelect.innerHTML = '';
+  
+  if (nicknamesData && Array.isArray(nicknamesData)) {
+    nicknamesData.forEach((classData, index) => {
+      const option = document.createElement('option');
+      option.value = index;
+      option.textContent = classData.name;
+      classSelect.appendChild(option);
+    });
+    
+    // 첫 번째 클래스를 기본으로 선택
+    if (nicknamesData.length > 0) {
+      classSelect.value = 0;
+      loadClassNicknames();
+    }
+  }
+}
+
+function loadClassNicknames() {
+  const classSelect = document.getElementById('classSelect');
+  if (!classSelect) {
+    console.error('classSelect element not found');
+    return;
+  }
+  
+  const selectedClassIndex = parseInt(classSelect.value);
+  
+  if (selectedClassIndex >= 0 && nicknamesData && Array.isArray(nicknamesData) && nicknamesData[selectedClassIndex]) {
+    const classNicknames = nicknamesData[selectedClassIndex].nicknames;
+    
+    // Clear existing persons
+    persons = [];
+    
+    // Add nicknames from selected class
+    classNicknames.forEach(nickname => {
+      persons.push({ name: nickname, selectedItems: [] });
+    });
+    
+    updateList("personList", persons);
+    const tableButton = document.getElementById("tableButton");
+    if (tableButton) {
+      tableButton.disabled = false;
+    }
+  } else {
+    // 클래스가 선택되지 않은 경우 참여자 목록 비우기
+    persons = [];
+    updateList("personList", persons);
+    const tableButton = document.getElementById("tableButton");
+    if (tableButton) {
+      tableButton.disabled = true;
+    }
+  }
+}
 
 /**************************************/
 
@@ -15,7 +111,7 @@ function generateTable() {
   // Create the table HTML
   var tableHTML = "<table>";
   // Header row
-  tableHTML += "<tr><th></th>";
+  tableHTML += "<tr><th>닉네임</th>";
   for (var i = 0; i < items.length; i++) {
     tableHTML += "<th>" + items[i].name + "</th>";
   }
@@ -84,7 +180,7 @@ function updateTable() {
   // Create the table HTML
   var tableHTML = "<table>";
   // Header row
-  tableHTML += "<tr><th></th>";
+  tableHTML += "<tr><th>닉네임</th>";
   for (var i = 0; i < items.length; i++) {
     tableHTML += "<th>" + items[i].name + "</th>";
   }
@@ -162,10 +258,11 @@ function distributeNumbers() {
   // Display the results
   var resultContainer = document.getElementById("resultContainer");
   var personsTotal = 0;
+  var grandTotal = 0;
   // Create the table HTML
   var tableHTML = "<table>";
   // Header row
-  tableHTML += "<tr><th></th>";
+  tableHTML += "<tr><th>닉네임</th>";
   for (var i = 0; i < items.length; i++) {
     tableHTML += "<th>" + items[i].name + "</th>";
   }
@@ -180,6 +277,7 @@ function distributeNumbers() {
       personsTotal += persons[i][items[j].name] || 0;
     }
     tableHTML += "<td>" + personsTotal + "</td>";
+    grandTotal += personsTotal;
     tableHTML += "</tr>";
   }
 
@@ -187,7 +285,7 @@ function distributeNumbers() {
   for (var j = 0; j < items.length; j++) {
     tableHTML += "<td>" + totalNumbers[j] + "</td>";
   }
-  tableHTML += "<td></td></tr></table>";
+  tableHTML += "<td>" + grandTotal + "</td></tr></table>";
   resultContainer.style.display = "block";
   resultContainer.innerHTML = tableHTML;
 
@@ -218,6 +316,16 @@ function addPerson() {
   var personName = personInput.value.trim();
 
   if (personName !== "") {
+    // Check if person already exists
+    var personExists = persons.some(function(person) {
+      return person.name === personName;
+    });
+    
+    if (personExists) {
+      alert("이미 존재하는 닉네임입니다: " + personName);
+      return;
+    }
+    
     persons.push({ name: personName, selectedItems: [] });
     updateList("personList", persons);
     personInput.value = "";
@@ -292,3 +400,11 @@ function handleEnterOrTabKey(event, nextElementId) {
     document.getElementById(nextElementId).focus();
   }
 }
+
+// Immediate execution check
+setTimeout(function() {
+  if (!nicknamesData) {
+    console.log('Delayed initialization...');
+    initializeApp();
+  }
+}, 100);

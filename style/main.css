@@ -10,19 +10,40 @@ table {
   font-family: 'IBM Plex Sans KR', sans-serif;
   border-collapse: collapse;
   width: 100%;
+  margin-top: 15px;
+  background-color: white;
+  border-radius: 0;
+  overflow: visible;
+  box-shadow: none;
 }
 
 table,
 th,
 td {
-  border: 1px solid black;
+  border: 1px solid #ddd;
 }
 
-th,
-td {
-  padding: 8px;
+th {
+  background-color: #e0e0e0;
+  color: #333;
+  font-weight: bold;
+  padding: 12px 8px;
   text-align: center;
-  justify-content: center;
+  border-bottom: 2px solid #ddd;
+}
+
+td {
+  padding: 10px 8px;
+  text-align: center;
+  background-color: white;
+}
+
+tr:nth-child(even) td {
+  background-color: #f9f9f9;
+}
+
+tr:hover td {
+  background-color: #f0f0f0;
 }
 
 .container {
@@ -34,4 +55,63 @@ td {
 .right-column {
   width: 50%;
   padding: 10px;
+}
+
+.class-selector {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  align-items: center;
+}
+
+.class-selector label {
+  font-weight: bold;
+  color: #333;
+  white-space: nowrap;
+  min-width: 80px;
+}
+
+.class-selector select {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-family: 'IBM Plex Sans KR', sans-serif;
+}
+
+.item-inputs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  align-items: center;
+}
+
+.item-inputs input {
+  flex: 1;
+}
+
+.result-buttons a {
+  text-decoration: none;
+  color: transparent;
+}
+
+.result-buttons a:focus {
+  outline: none;
+}
+
+/* 체크박스 스타일 */
+input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+/* 결과 컨테이너 스타일 */
+#tableContainer,
+#resultContainer {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  border: 1px solid #ddd;
 }

@@ -6,13 +6,18 @@
     <link rel="stylesheet" type="text/css" href="style/main.css" />
     <link rel="stylesheet" type="text/css" href="style/buttons.css" />
     <link rel="stylesheet" type="text/css" href="style/inputs.css" />
-    <title>ca 119 project</title>
-    <script src="script/main.js" defer></script>
-
+    <title>NBread</title>
   </head>
   <body>
-    <div class="container">
-      <div class="left-column">
+    <!-- 첫 번째 섹션: 참여자 섹션 -->
+    <section class="participants-section">
+      <h2>참여자 관리</h2>
+      <div class="class-selector">
+        <label for="classSelect">클래스 선택</label>
+        <select id="classSelect" onchange="loadClassNicknames()">
+        </select>
+      </div>
+      <div class="participant-input">
         <input
           type="text"
           id="personInput"
@@ -20,10 +25,14 @@
           onkeydown="handleEnterKey(event, addPerson, 'personInput')"
         />
         <button onclick="addPerson()" class="add-buttons">+</button>
-        <ul id="personList"></ul>
       </div>
+      <ul id="personList"></ul>
+    </section>
 
-      <div class="right-column">
+    <!-- 두 번째 섹션: 항목 섹션 -->
+    <section class="items-section">
+      <h2>항목 관리</h2>
+      <div class="item-inputs">
         <input
           type="text"
           id="itemInput"
@@ -38,33 +47,39 @@
           onkeydown="handleEnterKey(event, addItem, 'itemInput')"
         />
         <button onclick="addItem()" class="add-buttons">+</button>
-        <ul id="itemList"></ul>
       </div>
-    </div>
+      <ul id="itemList"></ul>
+    </section>
 
-    <div>
-      <a href="#tableContainer"
-        ><button
-          id="tableButton"
-          onclick="generateTable()"
-          class="edit-buttons"
-          disabled
-        >
-          상세 내역
-        </button></a
-      >
-      <a href="#resultContainer"
-        ><button
-          id="resultButton"
-          onclick="distributeNumbers()"
-          class="edit-buttons"
-          disabled
-        >
-          최종 정산금
-        </button></a
-      >
+    <!-- 세 번째 섹션: 결과 섹션 -->
+    <section class="results-section">
+      <h2>정산 결과</h2>
+      <div class="result-buttons">
+        <a href="#tableContainer">
+          <button
+            id="tableButton"
+            onclick="generateTable()"
+            class="edit-buttons"
+            disabled
+          >
+            상세 내역
+          </button>
+        </a>
+        <a href="#resultContainer">
+          <button
+            id="resultButton"
+            onclick="distributeNumbers()"
+            class="edit-buttons"
+            disabled
+          >
+            최종 정산금
+          </button>
+        </a>
+      </div>
       <div id="tableContainer"></div>
       <div id="resultContainer"></div>
-    </div>
+    </section>
+
+    <script src="script/main.js"></script>
   </body>
 </html>
