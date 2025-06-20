@@ -33,9 +33,9 @@ input[type = checkbox] {
 }
 
 input + label:after {
-  content: "⚪";
+  content: "❌";
 }
 
 input:checked + label:after {
-  content: "😃";
+  content: "✅";
 }

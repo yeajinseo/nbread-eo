@@ -46,72 +46,385 @@ tr:hover td {
   background-color: #f0f0f0;
 }
 
-.container {
+/* NBread 상단바 및 레이아웃 */
+.top-bar {
   display: flex;
   flex-direction: row;
+  align-items: stretch;
+  width: 100%;
+  height: 80px;
+  background: #fff;
+  border-bottom: 1px solid #eee;
+  box-sizing: border-box;
+  padding: 0 24px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
 }
-
-.left-column,
-.right-column {
-  width: 50%;
-  padding: 10px;
-}
-
-.class-selector {
+.logo-area {
   display: flex;
-  gap: 10px;
-  margin-bottom: 15px;
   align-items: center;
+  flex: 1 1 0;
+  min-width: 0;
 }
-
-.class-selector label {
+.logo-text {
+  font-size: 2.5rem;
   font-weight: bold;
-  color: #333;
+  color: #222;
+  letter-spacing: 2px;
   white-space: nowrap;
-  min-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.button-area {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 8px;
+  margin-left: 24px;
+}
+.top-btn, .next-btn, .add-buttons, .share-btn, .reset-btn {
+  font-family: 'IBM Plex Sans KR', sans-serif;
+  font-size: 1.08rem;
+  font-weight: 500;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  outline: none;
+}
+.top-btn, .share-btn, .reset-btn {
+  background: #107dc2;
+  padding: 10px 22px;
+}
+.top-btn:disabled, .share-btn:disabled, .reset-btn:disabled {
+  background: #dfdfdf;
+  color: #fff;
+  cursor: not-allowed;
+}
+.next-btn {
+  background: #08639c;
+  width: 100%;
+  padding: 14px 0;
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-top: 4px;
+}
+.next-btn:disabled {
+  background: #dfdfdf;
+  color: #fff;
+  cursor: not-allowed;
+}
+.add-buttons {
+  background: #107dc2;
+  color: #fff;
+  padding: 8px 18px;
+  font-size: 1.08rem;
+  font-weight: 500;
+}
+.add-buttons:disabled {
+  background: #dfdfdf;
+  color: #fff;
+  cursor: not-allowed;
 }
 
-.class-selector select {
-  flex: 1;
+.main-content {
+  padding: 24px 24px 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-height: 180px;
+}
+.class-selector-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+}
+.class-label {
+  font-weight: 600;
+  color: #333;
+  min-width: 90px;
+  flex-shrink: 0;
+}
+#classSelect {
+  flex: 1 1 0;
+  width: 100%;
+  min-width: 0;
   padding: 8px;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-family: 'IBM Plex Sans KR', sans-serif;
 }
-
-.item-inputs {
+.nickname-list {
+  list-style: none;
+  padding: 0 0 16px 0;
+  margin: 0;
+  min-height: 60px;
+  max-height: 32vh;
+  overflow-y: auto;
+  background: #fff;
+  border: none;
+  border-radius: 0;
   display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  align-items: flex-start;
+}
+.nickname-li {
+  position: relative;
+  padding-right: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin: 0 8px 8px 0;
+  min-width: 0;
+  max-width: 100%;
+  white-space: nowrap;
+}
+
+.bottom-bar {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100vw;
+  background: #fff;
+  box-shadow: 0 -2px 12px rgba(0,0,0,0.04);
+  padding: 16px 24px 12px 24px;
+  box-sizing: border-box;
+  z-index: 10;
+}
+.nickname-input-row {
+  display: flex;
+  flex-direction: row;
   gap: 10px;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
+}
+
+/* 모달 스타일 */
+.modal {
+  display: flex;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.35);
+  justify-content: center;
   align-items: center;
 }
-
-.item-inputs input {
-  flex: 1;
+.modal-content {
+  background: #fff;
+  padding: 0;
+  border-radius: 12px;
+  width: 90vw;
+  max-width: 700px;
+  height: 80vh;
+  position: relative;
+  display: flex;
+  flex-direction: column;
 }
-
-.result-buttons a {
-  text-decoration: none;
-  color: transparent;
+.modal-content iframe {
+  flex: 1 1 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: 0 0 12px 12px;
 }
-
-.result-buttons a:focus {
-  outline: none;
-}
-
-/* 체크박스 스타일 */
-input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
+.close {
+  position: absolute;
+  top: 10px;
+  right: 18px;
+  font-size: 2rem;
+  color: #888;
   cursor: pointer;
+  z-index: 10;
+}
+.close:hover {
+  color: #222;
 }
 
-/* 결과 컨테이너 스타일 */
-#tableContainer,
-#resultContainer {
-  margin-top: 20px;
-  padding: 15px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  border: 1px solid #ddd;
+@media (max-width: 600px) {
+  .top-bar {
+    flex-direction: column;
+    height: auto;
+    padding: 12px 8px;
+  }
+  .logo-text {
+    font-size: 2rem;
+  }
+  .main-content, .bottom-bar {
+    padding: 10px 8px;
+  }
+  .modal-content {
+    width: 98vw;
+    height: 80vh;
+    min-width: 0;
+  }
+}
+
+/* 두 번째 페이지 안내문구 */
+.select-guide {
+  text-align: center;
+  font-size: 1.15rem;
+  font-weight: 500;
+  margin: 24px 0 18px 0;
+  white-space: pre-line;
+}
+
+/* 표 스크롤 영역 */
+.table-scroll-area {
+  width: 100%;
+  max-height: 44vh;
+  overflow-y: auto;
+  background: #fff;
+}
+
+/* 상단/하단 고정, 중간 영역 스크롤 */
+body, html {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+body {
+  min-height: 100vh;
+  box-sizing: border-box;
+  position: relative;
+}
+.main-content, .second-content {
+  padding-top: 100px;
+  padding-bottom: 90px;
+  min-height: calc(100vh - 170px);
+  box-sizing: border-box;
+}
+.bottom-bar {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100vw;
+  background: #fff;
+  box-shadow: 0 -2px 12px rgba(0,0,0,0.04);
+  padding: 16px 24px 12px 24px;
+  box-sizing: border-box;
+  z-index: 110;
+}
+@media (max-width: 600px) {
+  .main-content, .second-content {
+    padding-top: 80px;
+    padding-bottom: 80px;
+  }
+  .table-scroll-area {
+    max-height: 32vh;
+  }
+}
+
+/* 항목 추가 페이지 안내문구 */
+.item-guide,
+.total-price-label {
+  font-family: 'IBM Plex Sans KR', sans-serif !important;
+}
+.item-guide {
+  text-align: center;
+  font-size: 1.15rem;
+  font-weight: 500;
+  margin: 24px 0 18px 0;
+}
+.item-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 18px 0;
+  background: #fff;
+}
+.item-row {
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 1.08rem;
+}
+.item-row:last-child {
+  border-bottom: none;
+}
+.item-input-row {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.item-sub-guide {
+  text-align: center;
+  font-size: 0.7rem;
+  color: #888;
+  margin-bottom: 12px;
+}
+
+/* 정산 결과 안내문구 */
+.result-guide {
+  text-align: center;
+  font-size: 1.15rem;
+  font-weight: 500;
+  margin: 24px 0 18px 0;
+}
+.share-btn-row {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+.result-table-area {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  background: #fff;
+  padding: 0 0 24px 0;
+}
+
+/* 닉네임 리스트 x 아이콘 */
+.delete-img {
+  height: 0.8em;
+  width: auto;
+  margin-left: 0.5em;
+  vertical-align: middle;
+  opacity: 0.7;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.delete-img:hover {
+  opacity: 1;
+}
+
+.first-guide {
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 18px 0 4px 0;
+}
+.first-sub-guide {
+  text-align: center;
+  font-size: 0.7rem;
+  color: #888;
+  margin-bottom: 12px;
+}
+
+.select-sub-guide {
+  text-align: center;
+  font-size: 0.7rem;
+  color: #888;
+  margin-bottom: 12px;
+}
+
+#firstPage.main-content {
+  padding-bottom: 90px !important;
+}
+
+.total-price-label {
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
 }
