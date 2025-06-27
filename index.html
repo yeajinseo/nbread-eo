@@ -18,71 +18,7 @@
         <button id="navBackBtn" class="top-btn">네오스윙 챗봇</button>
       </div>
     </div>
-    <div class="main-content" id="firstPage">
-      <div class="first-guide">함께한 사람들을 추가해주세요.</div>
-      <div class="first-sub-guide">강습 클래스를 선택하여 닉네임을 추가할 수 있습니다.</div>
-      <div class="class-selector-row">
-        <label for="classSelect" class="class-label">클래스 선택</label>
-        <select id="classSelect" onchange="loadClassNicknames()"></select>
-      </div>
-      <ul id="personList" class="nickname-list"></ul>
-    </div>
-    <div class="main-content" id="itemPage" style="display:none;">
-      <div class="item-guide">정산할 항목을 추가해 주세요.</div>
-      <div class="item-sub-guide">같은 이름의 항목을 여러 번 추가하면 금액이 자동으로 합산됩니다.</div>
-      <div id="totalPriceLabel" class="total-price-label"></div>
-      <ul id="itemList" class="item-list"></ul>
-    </div>
-    <div class="main-content second-content" id="secondPage" style="display:none;">
-      <div class="select-guide">포함할 항목을 선택해주세요.</div>
-      <div class="select-sub-guide">✅ 포함합니다    |    ❌ 포함하지 않습니다</div>
-      <div class="table-scroll-area">
-        <div id="selectTableContainer"></div>
-      </div>
-    </div>
-    <div class="main-content" id="resultPage" style="display:none;">
-      <div class="result-guide">정산 결과를 확인해주세요.</div>
-      <div class="share-btn-row">
-        <button id="shareImageBtn" class="share-btn">이미지로 공유</button>
-        <button id="shareUrlBtn" class="share-btn">URL로 공유</button>
-      </div>
-      <div class="result-table-area">
-        <div id="resultTableContainer"></div>
-      </div>
-      <div class="reset-btn-row">
-        <button id="resetBtn" class="reset-btn">처음으로</button>
-      </div>
-    </div>
-    <div class="bottom-bar">
-      <div class="nickname-input-row" id="firstInputRow">
-        <input
-          type="text"
-          id="personInput"
-          placeholder="닉네임"
-          onkeydown="handleEnterKey(event, addPerson, 'personInput')"
-        />
-        <button class="add-buttons" id="addPersonBtn">추가</button>
-      </div>
-      <div class="item-input-row" id="itemInputRow" style="display:none;">
-        <input
-          type="text"
-          id="itemInput"
-          placeholder="항목"
-          onkeydown="handleEnterOrTabKey(event, 'itemNumber')"
-        />
-        <input
-          type="number"
-          id="itemNumber"
-          placeholder="가격"
-          min="1"
-          onkeydown="handleEnterKey(event, addItem, 'itemInput')"
-        />
-        <button class="add-buttons" id="addItemBtn">추가</button>
-      </div>
-      <button id="nextBtn" class="next-btn">다음</button>
-      <button id="itemNextBtn" class="next-btn" style="display:none;">다음</button>
-      <button id="secondNextBtn" class="next-btn" style="display:none;">다음</button>
-    </div>
+    <div id="pageContainer"></div>
     <div id="helpModal" class="modal" style="display:none;">
       <div class="modal-content">
         <span class="close" id="closeHelpModal">&times;</span>

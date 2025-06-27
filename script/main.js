@@ -1,13 +1,580 @@
-let pageState = 0;
+let pageState = 0; // 0: 첫페이지, 1: 닉네임, 2: 포함항목, 3: 정산결과
 
 var persons = [];
 var items = [];
 var nicknamesData = null;
 
-var personIcon = "💸";
-var itemIcon = "👼🏻";
+var personIcon = "💸   ";
+var itemIcon = "👼🏻   ";
 
 var firstGenTable = true;
+
+// 데이터 상태
+let selectedClassIndex = null;
+
+// 페이지 렌더링 진입점
+function renderPage() {
+  const container = document.getElementById('pageContainer');
+  container.innerHTML = '';
+  container.style.paddingBottom = '0px';
+  container.style.minHeight = 'auto';
+  container.style.boxSizing = 'border-box';
+  container.style.position = 'relative';
+  
+  // 헤더 버튼 텍스트 업데이트
+  updateHeaderButton();
+  
+  if (pageState === 0) renderFirstPage(container);
+  else if (pageState === 1) renderSecondPage(container);
+  else if (pageState === 2) renderThirdPage(container);
+  else if (pageState === 3) renderResultPage(container);
+}
+
+// 헤더 버튼 업데이트 함수
+function updateHeaderButton() {
+  const navBackBtn = document.getElementById('navBackBtn');
+  if (navBackBtn) {
+    if (pageState === 0) {
+      navBackBtn.textContent = '네오스윙 챗봇';
+      navBackBtn.onclick = () => {
+        window.open('https://pf.kakao.com/_btRan', '_blank');
+      };
+    } else {
+      navBackBtn.textContent = '뒤로';
+      navBackBtn.onclick = () => {
+        if (pageState === 1) {
+          pageState = 0;
+        } else if (pageState === 2) {
+          pageState = 1;
+        } else if (pageState === 3) {
+          pageState = 2;
+        }
+        renderPage();
+      };
+    }
+  }
+}
+
+// 1. 첫 번째 페이지: 정산 시작
+function renderFirstPage(container) {
+  // 화면 중앙 정렬을 위한 컨테이너 (헤더 높이 고려하지 않음)
+  const centerContainer = document.createElement('div');
+  centerContainer.style.display = 'flex';
+  centerContainer.style.flexDirection = 'column';
+  centerContainer.style.justifyContent = 'center';
+  centerContainer.style.alignItems = 'center';
+  centerContainer.style.height = '80vh';
+  centerContainer.style.overflow = 'hidden';
+  centerContainer.style.position = 'absolute';
+  centerContainer.style.top = '0';
+  centerContainer.style.left = '0';
+  centerContainer.style.right = '0';
+  centerContainer.style.zIndex = '50';
+  centerContainer.style.padding = '0 24px'; // 좌우 패딩 추가
+  
+  const label = document.createElement('div');
+  label.className = 'first-guide';
+  label.textContent = '정산을 시작합니다!';
+  centerContainer.appendChild(label);
+  
+  // 두 버튼을 .next-btn 스타일, 100% width, 가운데 정렬
+  const btnNew = document.createElement('button');
+  btnNew.className = 'next-btn';
+  btnNew.style.width = '100%';
+  btnNew.style.margin = '24px auto 12px auto';
+  btnNew.textContent = '새로 만들기';
+  btnNew.onclick = () => { pageState = 1; renderPage(); };
+  centerContainer.appendChild(btnNew);
+  
+  const btnLoad = document.createElement('button');
+  btnLoad.className = 'next-btn';
+  btnLoad.style.width = '100%';
+  btnLoad.style.margin = '0 auto';
+  btnLoad.textContent = '기존 정보 불러오기';
+  btnLoad.onclick = () => { alert('아직 지원하지 않습니다.'); };
+  centerContainer.appendChild(btnLoad);
+  
+  container.appendChild(centerContainer);
+  
+  // 하단 바 제거
+  const prevBars = document.querySelectorAll('.bottom-bar');
+  prevBars.forEach(bar => bar.remove());
+}
+
+// 2. 두 번째 페이지: 닉네임 추가
+function renderSecondPage(container) {
+  // 상단 안내문구 (여백 줄임)
+  const label = document.createElement('div');
+  label.className = 'first-guide';
+  label.textContent = '함께한 사람들을 추가해주세요.';
+  label.style.marginTop = '8px';
+  container.appendChild(label);
+
+  const subLabel = document.createElement('div');
+  subLabel.className = 'first-sub-guide';
+  subLabel.textContent = '강습 클래스를 선택하여 닉네임을 추가할 수 있습니다.';
+  container.appendChild(subLabel);
+
+  // 클래스 선택 드롭다운
+  const classRow = document.createElement('div');
+  classRow.className = 'class-selector-row';
+  const classLabel = document.createElement('label');
+  classLabel.className = 'class-label';
+  classLabel.textContent = '클래스 선택';
+  classLabel.setAttribute('for', 'classSelect');
+  classRow.appendChild(classLabel);
+  const classSelect = document.createElement('select');
+  classSelect.id = 'classSelect';
+  if (nicknamesData && Array.isArray(nicknamesData)) {
+    nicknamesData.forEach((classData, idx) => {
+      const option = document.createElement('option');
+      option.value = idx;
+      option.textContent = classData.name;
+      classSelect.appendChild(option);
+    });
+    // 초기 로딩 시 첫 번째 클래스(지터벅)를 기본으로 선택하고 닉네임 로딩
+    if (selectedClassIndex === null && nicknamesData.length > 0) {
+      selectedClassIndex = 0;
+      classSelect.value = 0;
+      // 지터벅 닉네임들을 자동으로 로딩
+      if (nicknamesData[0] && nicknamesData[0].nicknames) {
+        persons = [];
+        nicknamesData[0].nicknames.forEach(nick => {
+          persons.push({ name: nick });
+        });
+      }
+    } else if (selectedClassIndex !== null) {
+      classSelect.value = selectedClassIndex;
+    }
+  }
+  classSelect.onchange = function() {
+    selectedClassIndex = parseInt(classSelect.value);
+    persons = [];
+    if (nicknamesData && nicknamesData[selectedClassIndex]) {
+      nicknamesData[selectedClassIndex].nicknames.forEach(nick => {
+        persons.push({ name: nick });
+      });
+    }
+    renderPage();
+  };
+  classRow.appendChild(classSelect);
+  container.appendChild(classRow);
+
+  // 닉네임 리스트 (드롭다운과 여백 추가)
+  const list = document.createElement('ul');
+  list.className = 'nickname-list';
+  list.style.marginTop = '16px';
+  persons.forEach((p, idx) => {
+    const li = document.createElement('li');
+    li.className = 'nickname-li';
+    // 👼🏻 이모지 추가
+    const angel = document.createElement('span');
+    angel.textContent = '👼🏻     ';
+    li.appendChild(angel);
+    const nameSpan = document.createElement('span');
+    nameSpan.textContent = p.name;
+    li.appendChild(nameSpan);
+    // 삭제 버튼 (이미지 링크 수정)
+    const delBtn = document.createElement('img');
+    delBtn.src = 'https://cdn.glitch.global/332d8fa1-f99a-45b3-8787-25ed7ef4d642/icon_delete.png?v=1750428694694';
+    delBtn.alt = '삭제';
+    delBtn.className = 'delete-img';
+    delBtn.style.height = '0.8em';
+    delBtn.style.width = 'auto';
+    delBtn.style.marginLeft = '0.5em';
+    delBtn.style.verticalAlign = 'middle';
+    delBtn.style.opacity = '0.7';
+    delBtn.style.cursor = 'pointer';
+    delBtn.onclick = (e) => {
+      e.stopPropagation();
+      if (confirm('닉네임을 삭제할까요?')) {
+        persons.splice(idx, 1);
+        renderPage();
+      }
+    };
+    li.appendChild(delBtn);
+    list.appendChild(li);
+  });
+  container.appendChild(list);
+
+  // 하단 입력/버튼 바
+  const bottomBar = document.createElement('div');
+  bottomBar.className = 'bottom-bar';
+  // 닉네임 입력/추가
+  const inputRow = document.createElement('div');
+  inputRow.className = 'nickname-input-row';
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.placeholder = '닉네임';
+  inputRow.appendChild(input);
+  const addBtn = document.createElement('button');
+  addBtn.className = 'add-buttons';
+  addBtn.textContent = '추가';
+  addBtn.onclick = () => {
+    if (input.value.trim()) {
+      persons.push({ name: input.value.trim() });
+      input.value = '';
+      renderPage();
+    }
+  };
+  inputRow.appendChild(addBtn);
+  bottomBar.appendChild(inputRow);
+  // 다음 버튼
+  const nextBtn = document.createElement('button');
+  nextBtn.className = 'next-btn';
+  nextBtn.textContent = '다음';
+  nextBtn.style.marginTop = '4px';
+  nextBtn.style.width = '100%';
+  nextBtn.disabled = persons.length === 0;
+  nextBtn.onclick = () => { pageState = 2; renderPage(); };
+  bottomBar.appendChild(nextBtn);
+  document.body.appendChild(bottomBar);
+  // 중복 bottom-bar 제거
+  const prevBars = document.querySelectorAll('.bottom-bar');
+  if (prevBars.length > 1) {
+    for (let i = 0; i < prevBars.length - 1; i++) prevBars[i].remove();
+  }
+}
+
+// 3. 세 번째 페이지: 포함항목 선택
+function renderThirdPage(container) {
+  // items 배열 초기화 (안주, 주류, 음료)
+  if (items.length === 0) {
+    items = [
+      { name: '안주', price: 0 },
+      { name: '주류', price: 0 },
+      { name: '음료', price: 0 }
+    ];
+  }
+  
+  // 상단 안내문구 (여백 줄임)
+  const label = document.createElement('div');
+  label.className = 'first-guide';
+  label.textContent = '포함할 항목을 추가해 주세요.';
+  label.style.marginTop = '8px';
+  container.appendChild(label);
+  
+  const subLabel = document.createElement('div');
+  subLabel.className = 'first-sub-guide';
+  subLabel.style.color = '#888';
+  subLabel.style.fontSize = '0.7rem';
+  subLabel.textContent = '✅ 포함합니다 | ❌ 포함하지 않습니다';
+  container.appendChild(subLabel);
+
+  // 금액 입력하기 버튼 (라벨과 표 사이)
+  const btnInput = document.createElement('button');
+  btnInput.className = 'next-btn';
+  btnInput.textContent = '금액 입력하기';
+  btnInput.style.width = '100%';
+  btnInput.style.margin = '16px 0';
+  btnInput.onclick = () => showPriceInputModal();
+  container.appendChild(btnInput);
+
+  // 표 스크롤 영역
+  const scrollArea = document.createElement('div');
+  scrollArea.className = 'table-scroll-area';
+  scrollArea.style.background = '#fff';
+  // 표: 닉네임 x 항목(안주, 주류, 음료)
+  const table = document.createElement('table');
+  const thead = document.createElement('thead');
+  const trHead = document.createElement('tr');
+  const thName = document.createElement('th');
+  thName.textContent = '닉네임';
+  trHead.appendChild(thName);
+  ['안주', '주류', '음료'].forEach(name => {
+    const th = document.createElement('th');
+    th.textContent = name;
+    trHead.appendChild(th);
+  });
+  thead.appendChild(trHead);
+  table.appendChild(thead);
+  const tbody = document.createElement('tbody');
+  persons.forEach((p, pi) => {
+    const tr = document.createElement('tr');
+    const tdName = document.createElement('td');
+    tdName.textContent = p.name;
+    tdName.style.cursor = 'pointer'; // 닉네임 클릭 가능 표시
+    tr.appendChild(tdName);
+    if (!p.selected) p.selected = [true, true, true];
+    
+    // 이모지 배열 저장용
+    const emojis = [];
+    
+    [0,1,2].forEach(ii => {
+      const td = document.createElement('td');
+      // ✅/❌ 이모지 토글
+      const emoji = document.createElement('span');
+      emoji.style.cursor = 'pointer';
+      emoji.style.fontSize = '1.5em';
+      emoji.textContent = p.selected[ii] ? '✅' : '❌';
+      emoji.onclick = () => {
+        p.selected[ii] = !p.selected[ii];
+        emoji.textContent = p.selected[ii] ? '✅' : '❌';
+      };
+      td.appendChild(emoji);
+      tr.appendChild(td);
+      emojis.push(emoji);
+    });
+    
+    // 닉네임 클릭 시 해당 행의 모든 이모지 토글 (로직 수정)
+    tdName.onclick = () => {
+      const allChecked = p.selected.every(selected => selected);
+      if (allChecked) {
+        // 모두 ✅면 모두 ❌로
+        p.selected = [false, false, false];
+        emojis.forEach(emoji => emoji.textContent = '❌');
+      } else {
+        // 하나라도 ❌면 모두 ✅로
+        p.selected = [true, true, true];
+        emojis.forEach(emoji => emoji.textContent = '✅');
+      }
+    };
+    
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+  scrollArea.appendChild(table);
+  container.appendChild(scrollArea);
+
+  // 하단 버튼 (표 밑으로 이동)
+  const btnRow = document.createElement('div');
+  btnRow.style.display = 'flex';
+  btnRow.style.gap = '12px';
+  btnRow.style.margin = '24px 0 0 0';
+  const saveBtn = document.createElement('button');
+  saveBtn.className = 'next-btn';
+  saveBtn.textContent = '진행 상황 저장';
+  saveBtn.style.width = '50%';
+  saveBtn.onclick = () => { alert('아직 지원하지 않습니다.'); };
+  btnRow.appendChild(saveBtn);
+  const nextBtn = document.createElement('button');
+  nextBtn.className = 'next-btn';
+  nextBtn.textContent = '최종 정산';
+  nextBtn.style.width = '50%';
+  // 금액 입력 여부에 따라 버튼 활성화/비활성화
+  const hasPriceInput = items.some(item => item.price && item.price > 0);
+  nextBtn.disabled = !hasPriceInput;
+  nextBtn.onclick = () => { pageState = 3; renderPage(); };
+  btnRow.appendChild(nextBtn);
+  container.appendChild(btnRow);
+
+  // 하단 바 제거
+  const prevBars = document.querySelectorAll('.bottom-bar');
+  prevBars.forEach(bar => bar.remove());
+}
+
+// 금액 입력 모달
+function showPriceInputModal() {
+  let modal = document.getElementById('priceInputModal');
+  if (modal) modal.remove();
+  modal = document.createElement('div');
+  modal.id = 'priceInputModal';
+  modal.style.position = 'fixed';
+  modal.style.left = '0';
+  modal.style.top = '0';
+  modal.style.width = '100vw';
+  modal.style.height = '100vh';
+  modal.style.background = 'rgba(0,0,0,0.35)';
+  modal.style.zIndex = '2000';
+  modal.style.display = 'flex';
+  modal.style.justifyContent = 'center';
+  modal.style.alignItems = 'center';
+
+  const content = document.createElement('div');
+  content.style.background = '#fff';
+  content.style.borderRadius = '12px';
+  content.style.width = '90vw';
+  content.style.maxWidth = '400px';
+  content.style.padding = '32px 16px 24px 16px';
+  content.style.display = 'flex';
+  content.style.flexDirection = 'column';
+  content.style.alignItems = 'center';
+
+  // 모달 버튼들
+  const btnPhoto = document.createElement('button');
+  btnPhoto.className = 'next-btn';
+  btnPhoto.textContent = '영수증 사진 업로드';
+  btnPhoto.style.width = '100%';
+  btnPhoto.onclick = () => { alert('준비중입니다.'); };
+  content.appendChild(btnPhoto);
+
+  const btnManual = document.createElement('button');
+  btnManual.className = 'next-btn';
+  btnManual.textContent = '수동으로 금액 입력';
+  btnManual.style.width = '100%';
+  btnManual.style.marginTop = '12px';
+  btnManual.onclick = () => showManualPriceInput(content, modal);
+  content.appendChild(btnManual);
+
+  // 닫기 버튼
+  const closeBtn = document.createElement('span');
+  closeBtn.textContent = '×';
+  closeBtn.style.position = 'absolute';
+  closeBtn.style.top = '12px';
+  closeBtn.style.right = '24px';
+  closeBtn.style.fontSize = '2rem';
+  closeBtn.style.cursor = 'pointer';
+  closeBtn.onclick = () => { modal.remove(); };
+  content.appendChild(closeBtn);
+
+  modal.appendChild(content);
+  document.body.appendChild(modal);
+}
+
+function showManualPriceInput(content, modal) {
+  content.innerHTML = '';
+  const table = document.createElement('table');
+  const thead = document.createElement('thead');
+  const trHead = document.createElement('tr');
+  ['항목', '가격'].forEach(h => {
+    const th = document.createElement('th');
+    th.textContent = h;
+    trHead.appendChild(th);
+  });
+  thead.appendChild(trHead);
+  table.appendChild(thead);
+  const tbody = document.createElement('tbody');
+  ['안주', '주류', '음료'].forEach((name, idx) => {
+    const tr = document.createElement('tr');
+    const tdName = document.createElement('td');
+    tdName.textContent = name;
+    tr.appendChild(tdName);
+    const tdInput = document.createElement('td');
+    const input = document.createElement('input');
+    input.type = 'number';
+    input.min = '0';
+    input.value = items[idx]?.price || '';
+    input.style.width = '80px';
+    tdInput.appendChild(input);
+    tr.appendChild(tdInput);
+    tbody.appendChild(tr);
+    // 저장용
+    tr.dataset.idx = idx;
+    tr.input = input;
+  });
+  table.appendChild(tbody);
+  content.appendChild(table);
+  // 입력 버튼
+  const btnEnter = document.createElement('button');
+  btnEnter.className = 'next-btn';
+  btnEnter.textContent = '입력';
+  btnEnter.style.width = '100%';
+  btnEnter.style.marginTop = '16px';
+  btnEnter.onclick = () => {
+    // 입력값 저장
+    Array.from(tbody.children).forEach((tr, idx) => {
+      const val = parseInt(tr.input.value, 10);
+      if (!isNaN(val)) items[idx].price = val;
+    });
+    modal.remove();
+    renderPage();
+  };
+  content.appendChild(btnEnter);
+  // 닫기 버튼
+  const closeBtn = document.createElement('span');
+  closeBtn.textContent = '×';
+  closeBtn.style.position = 'absolute';
+  closeBtn.style.top = '12px';
+  closeBtn.style.right = '24px';
+  closeBtn.style.fontSize = '2rem';
+  closeBtn.style.cursor = 'pointer';
+  closeBtn.onclick = () => { modal.remove(); };
+  content.appendChild(closeBtn);
+}
+
+// 4. 네 번째 페이지: 정산 결과
+function renderResultPage(container) {
+  const label = document.createElement('div');
+  label.className = 'first-guide';
+  label.textContent = '정산 결과를 확인해주세요.';
+  container.appendChild(label);
+  
+  // 결과 표
+  const table = document.createElement('table');
+  const thead = document.createElement('thead');
+  const trHead = document.createElement('tr');
+  const thName = document.createElement('th');
+  thName.textContent = '닉네임';
+  trHead.appendChild(thName);
+  const thTotal = document.createElement('th');
+  thTotal.textContent = '정산금';
+  trHead.appendChild(thTotal);
+  ['안주', '주류', '음료'].forEach(name => {
+    const th = document.createElement('th');
+    th.textContent = name;
+    trHead.appendChild(th);
+  });
+  thead.appendChild(trHead);
+  table.appendChild(thead);
+  const tbody = document.createElement('tbody');
+  
+  // 닉네임별 행
+  persons.forEach((p, pi) => {
+    const tr = document.createElement('tr');
+    const tdName = document.createElement('td');
+    tdName.textContent = p.name;
+    tr.appendChild(tdName);
+    let total = 0;
+    let itemVals = [0,0,0];
+    [0,1,2].forEach(ii => {
+      let val = 0;
+      if (p.selected && p.selected[ii]) {
+        const count = persons.filter(pp => pp.selected && pp.selected[ii]).length;
+        val = count > 0 ? Math.round((items[ii].price || 0) / count) : 0;
+      }
+      itemVals[ii] = val;
+      total += val;
+    });
+    // 정산금
+    const tdTotal = document.createElement('td');
+    tdTotal.textContent = total.toLocaleString();
+    tr.appendChild(tdTotal);
+    // 각 항목별 금액
+    itemVals.forEach(val => {
+      const td = document.createElement('td');
+      td.textContent = val.toLocaleString();
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+  
+  // 합계 행
+  const trSum = document.createElement('tr');
+  const tdSumName = document.createElement('td');
+  tdSumName.textContent = '합계';
+  trSum.appendChild(tdSumName);
+  // 합계 정산금
+  let sumTotal = 0;
+  let sumItems = [0,0,0];
+  [0,1,2].forEach(ii => {
+    sumItems[ii] = items[ii].price || 0;
+    sumTotal += sumItems[ii];
+  });
+  const tdSumTotal = document.createElement('td');
+  tdSumTotal.textContent = sumTotal.toLocaleString();
+  trSum.appendChild(tdSumTotal);
+  sumItems.forEach(val => {
+    const td = document.createElement('td');
+    td.textContent = val.toLocaleString();
+    trSum.appendChild(td);
+  });
+  tbody.appendChild(trSum);
+  table.appendChild(tbody);
+  container.appendChild(table);
+  
+  // 처음으로 버튼 .next-btn 스타일, 100% width, 가운데 정렬
+  const resetBtn = document.createElement('button');
+  resetBtn.className = 'next-btn';
+  resetBtn.textContent = '처음으로';
+  resetBtn.style.margin = '24px auto 0 auto';
+  resetBtn.style.width = '100%';
+  resetBtn.onclick = () => { pageState = 0; persons = []; items.forEach(i=>i.price=0); renderPage(); };
+  container.appendChild(resetBtn);
+  
+  // 하단 바 제거
+  const prevBars = document.querySelectorAll('.bottom-bar');
+  prevBars.forEach(bar => bar.remove());
+}
 
 // Load nicknames data when page loads
 function initializeApp() {
@@ -35,10 +602,11 @@ function loadNicknamesData() {
     .then(response => response.json())
     .then(data => {
       nicknamesData = data;
-      populateClassDropdown();
+      renderPage();
     })
     .catch(error => {
       console.error('Error loading nicknames:', error);
+      renderPage();
     });
 }
 
