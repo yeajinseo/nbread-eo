@@ -46,8 +46,8 @@ tr:hover td {
   background-color: #f0f0f0;
 }
 
-/* NBread 상단바 및 레이아웃 */
-.top-bar {
+/* NBread 오버레이 헤더 */
+.overlay-header {
   display: flex;
   flex-direction: row;
   align-items: stretch;
@@ -57,14 +57,19 @@ tr:hover td {
   border-bottom: none;
   box-sizing: border-box;
   padding: 0 24px;
-  z-index: 100;
-  position: static;
+  z-index: 1000;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  pointer-events: none; /* 배경 클릭 통과 */
 }
 .logo-area {
   display: flex;
   align-items: center;
   flex: 1 1 0;
   min-width: 0;
+  pointer-events: auto; /* 로고 영역만 클릭 가능 */
 }
 .logo-text {
   font-size: 2.5rem;
@@ -82,6 +87,7 @@ tr:hover td {
   align-items: flex-end;
   gap: 8px;
   margin-left: 24px;
+  pointer-events: auto; /* 버튼 영역만 클릭 가능 */
 }
 .top-btn, .next-btn, .add-buttons, .share-btn, .reset-btn {
   font-family: 'IBM Plex Sans KR', sans-serif;
@@ -253,8 +259,7 @@ tr:hover td {
 
 /* 모바일 반응형 헤더 */
 @media (max-width: 600px) {
-  .top-bar {
-    flex-direction: row;
+  .overlay-header {
     height: 60px;
     padding: 0 16px;
   }
@@ -275,14 +280,14 @@ tr:hover td {
 
 /* 페이지 컨테이너 여백 */
 #pageContainer {
-  padding-left: 24px;
-  padding-right: 24px;
+  padding: 24px; /* 상단 패딩 제거 */
+  min-height: 100vh;
+  box-sizing: border-box;
 }
 
 @media (max-width: 600px) {
   #pageContainer {
-    padding-left: 16px;
-    padding-right: 16px;
+    padding: 16px; /* 모바일에서도 상단 패딩 제거 */
   }
 }
 
@@ -298,9 +303,8 @@ body {
   position: relative;
 }
 .main-content, .second-content {
-  padding-top: 100px;
   padding-bottom: 90px;
-  min-height: calc(100vh - 170px);
+  min-height: calc(100vh - 90px);
   box-sizing: border-box;
 }
 .bottom-bar {
@@ -316,7 +320,6 @@ body {
 }
 @media (max-width: 600px) {
   .main-content, .second-content {
-    padding-top: 80px;
     padding-bottom: 80px;
   }
   .bottom-bar {

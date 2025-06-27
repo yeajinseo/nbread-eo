@@ -57,20 +57,20 @@ function updateHeaderButton() {
 
 // 1. 첫 번째 페이지: 정산 시작
 function renderFirstPage(container) {
-  // 화면 중앙 정렬을 위한 컨테이너 (헤더 높이 고려하지 않음)
+  // 화면 중앙 정렬을 위한 컨테이너 (오버레이 헤더 고려)
   const centerContainer = document.createElement('div');
   centerContainer.style.display = 'flex';
   centerContainer.style.flexDirection = 'column';
   centerContainer.style.justifyContent = 'center';
   centerContainer.style.alignItems = 'center';
-  centerContainer.style.height = '80vh';
+  centerContainer.style.height = '100vh'; /* 전체 화면 높이 사용 */
   centerContainer.style.overflow = 'hidden';
-  centerContainer.style.position = 'absolute';
+  centerContainer.style.position = 'relative';
   centerContainer.style.top = '0';
   centerContainer.style.left = '0';
   centerContainer.style.right = '0';
   centerContainer.style.zIndex = '50';
-  centerContainer.style.padding = '0 24px'; // 좌우 패딩 추가
+  centerContainer.style.padding = '0 24px'; /* 좌우 패딩 추가 */
   
   const label = document.createElement('div');
   label.className = 'first-guide';
@@ -568,7 +568,7 @@ function renderResultPage(container) {
   resetBtn.textContent = '처음으로';
   resetBtn.style.margin = '24px auto 0 auto';
   resetBtn.style.width = '100%';
-  resetBtn.onclick = () => { pageState = 0; persons = []; items.forEach(i=>i.price=0); renderPage(); };
+  resetBtn.onclick = () => { location.reload(); };
   container.appendChild(resetBtn);
   
   // 하단 바 제거
@@ -1086,7 +1086,7 @@ window.addEventListener('DOMContentLoaded', function() {
     shareImageBtn.onclick = function() { alert('준비중입니다.'); };
     shareUrlBtn.onclick = function() { alert('준비중입니다.'); };
     // 처음으로 버튼
-    resetBtn.onclick = function() { window.location.reload(); };
+    resetBtn.onclick = function() { location.reload(); };
     // 항목 리스트 렌더링
     function renderItemList() {
       itemList.innerHTML = '';
