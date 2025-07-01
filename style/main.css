@@ -48,21 +48,20 @@ tr:hover td {
 
 /* NBread 오버레이 헤더 */
 .overlay-header {
-  display: flex;
-  flex-direction: row;
-  align-items: stretch;
-  width: 100%;
-  height: 80px;
-  background: transparent;
-  border-bottom: none;
-  box-sizing: border-box;
-  padding: 0 24px;
-  z-index: 1000;
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  pointer-events: none; /* 배경 클릭 통과 */
+  height: 120px;
+  z-index: 2000;
+  background: transparent;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0 24px;
+  pointer-events: auto;
 }
 .logo-area {
   display: flex;
@@ -86,12 +85,12 @@ tr:hover td {
   justify-content: center;
   align-items: flex-end;
   gap: 8px;
+  margin-top: 24px;
   margin-left: 24px;
-  pointer-events: auto; /* 버튼 영역만 클릭 가능 */
 }
 .top-btn, .next-btn, .add-buttons, .share-btn, .reset-btn {
   font-family: 'IBM Plex Sans KR', sans-serif;
-  font-size: 1.08rem;
+  font-size: 1.0em;
   font-weight: 500;
   color: #fff;
   border: none;
@@ -212,6 +211,14 @@ tr:hover td {
   gap: 10px;
   margin-bottom: 10px;
 }
+.nickname-input-row input {
+  flex: 1 1 0;
+  min-width: 0;
+  width: 100%;
+}
+.nickname-input-row .add-buttons {
+  flex-shrink: 0;
+}
 
 /* 모달 스타일 */
 .modal {
@@ -260,7 +267,7 @@ tr:hover td {
 /* 모바일 반응형 헤더 */
 @media (max-width: 600px) {
   .overlay-header {
-    height: 60px;
+    height: 120px;
     padding: 0 16px;
   }
   .logo-text {
@@ -280,14 +287,18 @@ tr:hover td {
 
 /* 페이지 컨테이너 여백 */
 #pageContainer {
-  padding: 24px; /* 상단 패딩 제거 */
+  padding: 0 16px;
+  padding-top: 90px; /* 헤더 높이만큼 상단 패딩 추가 */
+  padding-bottom: 80px;
   min-height: 100vh;
   box-sizing: border-box;
 }
 
 @media (max-width: 600px) {
   #pageContainer {
-    padding: 16px; /* 모바일에서도 상단 패딩 제거 */
+    padding: 0 16px;
+    padding-top: 90px; /* 모바일 헤더 높이만큼 상단 패딩 */
+    padding-bottom: 80px;
   }
 }
 
@@ -302,9 +313,7 @@ body {
   box-sizing: border-box;
   position: relative;
 }
-.main-content, .second-content {
-  padding-bottom: 90px;
-  min-height: calc(100vh - 90px);
+.main-content {
   box-sizing: border-box;
 }
 .bottom-bar {
@@ -318,15 +327,6 @@ body {
   box-sizing: border-box;
   z-index: 110;
 }
-@media (max-width: 600px) {
-  .main-content, .second-content {
-    padding-bottom: 80px;
-  }
-  .bottom-bar {
-    padding: 12px 16px 8px 16px;
-  }
-}
-
 /* 항목 추가 페이지 안내문구 */
 .item-guide,
 .total-price-label {
@@ -421,14 +421,14 @@ body {
   margin-bottom: 12px;
 }
 
-#firstPage.main-content {
-  padding-bottom: 90px !important;
-}
-
 .total-price-label {
   text-align: center;
   font-size: 1rem;
   font-weight: 600;
   color: #333;
   margin-bottom: 8px;
+}
+
+.main-content, .second-content {
+  padding-bottom: 80px;
 }

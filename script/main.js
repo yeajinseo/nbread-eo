@@ -57,13 +57,15 @@ function updateHeaderButton() {
 
 // 1. 첫 번째 페이지: 정산 시작
 function renderFirstPage(container) {
+  container.style.height = '100vh';
+
   // 화면 중앙 정렬을 위한 컨테이너 (오버레이 헤더 고려)
   const centerContainer = document.createElement('div');
   centerContainer.style.display = 'flex';
   centerContainer.style.flexDirection = 'column';
   centerContainer.style.justifyContent = 'center';
   centerContainer.style.alignItems = 'center';
-  centerContainer.style.height = '100vh'; /* 전체 화면 높이 사용 */
+  centerContainer.style.height = 'calc(100vh - 180px)'; /* 전체 화면 높이 사용 */
   centerContainer.style.overflow = 'hidden';
   centerContainer.style.position = 'relative';
   centerContainer.style.top = '0';
@@ -441,14 +443,26 @@ function showManualPriceInput(content, modal) {
     tr.appendChild(tdName);
     const tdInput = document.createElement('td');
     const input = document.createElement('input');
-    input.type = 'number';
+    input.type = 'text';
     input.min = '0';
-    input.value = items[idx]?.price || '';
+    input.value = items[idx]?.price ? items[idx].price.toLocaleString() : '';
     input.style.width = '80px';
+    input.addEventListener('input', function(e) {
+      let val = input.value.replace(/[^\d]/g, '');
+      if (val) val = parseInt(val, 10).toLocaleString();
+      input.value = val;
+    });
+    input.addEventListener('focus', function(e) {
+      input.value = input.value.replace(/[^\d]/g, '');
+    });
+    input.addEventListener('blur', function(e) {
+      let val = input.value.replace(/[^\d]/g, '');
+      if (val) val = parseInt(val, 10).toLocaleString();
+      input.value = val;
+    });
     tdInput.appendChild(input);
     tr.appendChild(tdInput);
     tbody.appendChild(tr);
-    // 저장용
     tr.dataset.idx = idx;
     tr.input = input;
   });
@@ -463,7 +477,8 @@ function showManualPriceInput(content, modal) {
   btnEnter.onclick = () => {
     // 입력값 저장
     Array.from(tbody.children).forEach((tr, idx) => {
-      const val = parseInt(tr.input.value, 10);
+      let val = tr.input.value.replace(/[^\d]/g, '');
+      val = parseInt(val, 10);
       if (!isNaN(val)) items[idx].price = val;
     });
     modal.remove();
@@ -488,6 +503,28 @@ function renderResultPage(container) {
   label.className = 'first-guide';
   label.textContent = '정산 결과를 확인해주세요.';
   container.appendChild(label);
+
+  // 공유 버튼 영역 추가
+  const shareRow = document.createElement('div');
+  shareRow.style.display = 'flex';
+  shareRow.style.flexDirection = 'row';
+  shareRow.style.justifyContent = 'center';
+  shareRow.style.gap = '12px';
+  shareRow.style.margin = '18px 0';
+
+  const btnShareImg = document.createElement('button');
+  btnShareImg.className = 'share-btn';
+  btnShareImg.textContent = '이미지로 공유하기';
+  // TODO: 기능 연결
+  shareRow.appendChild(btnShareImg);
+
+  const btnShareUrl = document.createElement('button');
+  btnShareUrl.className = 'share-btn';
+  btnShareUrl.textContent = 'URL로 공유하기';
+  // TODO: 기능 연결
+  shareRow.appendChild(btnShareUrl);
+
+  container.appendChild(shareRow);
   
   // 결과 표
   const table = document.createElement('table');
