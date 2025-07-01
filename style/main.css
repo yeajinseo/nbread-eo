@@ -386,6 +386,9 @@ body {
   background: #fff;
   padding: 0 0 24px 0;
 }
+.result-table-area, .result-table-area table, .result-table-area th, .result-table-area td {
+  font-size: 0.9em;
+}
 
 /* 닉네임 리스트 x 아이콘 */
 .delete-img {

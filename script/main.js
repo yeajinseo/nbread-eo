@@ -387,10 +387,11 @@ function showPriceInputModal() {
   content.style.borderRadius = '12px';
   content.style.width = '90vw';
   content.style.maxWidth = '400px';
-  content.style.padding = '32px 16px 24px 16px';
+  content.style.padding = '50px 16px 24px 16px';
   content.style.display = 'flex';
   content.style.flexDirection = 'column';
   content.style.alignItems = 'center';
+  content.style.position = 'relative';
 
   // 모달 버튼들
   const btnPhoto = document.createElement('button');
@@ -412,9 +413,10 @@ function showPriceInputModal() {
   const closeBtn = document.createElement('span');
   closeBtn.textContent = '×';
   closeBtn.style.position = 'absolute';
-  closeBtn.style.top = '12px';
-  closeBtn.style.right = '24px';
-  closeBtn.style.fontSize = '2rem';
+  closeBtn.style.top = '0px';
+  closeBtn.style.right = '12px';
+  closeBtn.style.fontSize = '2.2rem';
+  closeBtn.style.color = '#888';
   closeBtn.style.cursor = 'pointer';
   closeBtn.onclick = () => { modal.remove(); };
   content.appendChild(closeBtn);
@@ -489,12 +491,14 @@ function showManualPriceInput(content, modal) {
   const closeBtn = document.createElement('span');
   closeBtn.textContent = '×';
   closeBtn.style.position = 'absolute';
-  closeBtn.style.top = '12px';
-  closeBtn.style.right = '24px';
-  closeBtn.style.fontSize = '2rem';
+  closeBtn.style.top = '0px';
+  closeBtn.style.right = '12px';
+  closeBtn.style.fontSize = '2.2rem';
+  closeBtn.style.color = '#888';
   closeBtn.style.cursor = 'pointer';
   closeBtn.onclick = () => { modal.remove(); };
   content.appendChild(closeBtn);
+  content.style.position = 'relative';
 }
 
 // 4. 네 번째 페이지: 정산 결과
@@ -534,7 +538,7 @@ function renderResultPage(container) {
   thName.textContent = '닉네임';
   trHead.appendChild(thName);
   const thTotal = document.createElement('th');
-  thTotal.textContent = '정산금';
+  thTotal.textContent = '합계';
   trHead.appendChild(thTotal);
   ['안주', '주류', '음료'].forEach(name => {
     const th = document.createElement('th');
@@ -874,7 +878,7 @@ function distributeNumbers() {
   for (var i = 0; i < items.length; i++) {
     tableHTML += "<th>" + items[i].name + "</th>";
   }
-  tableHTML += "<th>정산금</th></tr>";
+  tableHTML += "<th>합계</th></tr>";
 
   // Data rows with checkboxes
   for (var i = 0; i < persons.length; i++) {
@@ -1195,7 +1199,7 @@ window.addEventListener('DOMContentLoaded', function() {
       for (var i = 0; i < items.length; i++) {
         tableHTML += "<th>" + items[i].name + "</th>";
       }
-      tableHTML += "<th>정산금</th></tr>";
+      tableHTML += "<th>합계</th></tr>";
       var grandTotal = 0;
       for (var i = 0; i < persons.length; i++) {
         tableHTML += "<tr><td>" + persons[i].name + "</td>";
