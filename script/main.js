@@ -398,7 +398,13 @@ function showPriceInputModal() {
   btnPhoto.className = 'next-btn';
   btnPhoto.textContent = '영수증 사진 업로드';
   btnPhoto.style.width = '100%';
-  btnPhoto.onclick = () => { alert('준비중입니다.'); };
+  btnPhoto.onclick = () => {
+    if (!/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)) {
+      alert('모바일에서만 지원되는 기능입니다.');
+      return;
+    }
+    showPhotoChoiceModal();
+  };
   content.appendChild(btnPhoto);
 
   const btnManual = document.createElement('button');
@@ -423,6 +429,80 @@ function showPriceInputModal() {
 
   modal.appendChild(content);
   document.body.appendChild(modal);
+}
+
+function showPhotoChoiceModal() {
+  // 기존 모달 내용 비우기
+  const modal = document.getElementById('priceInputModal');
+  if (!modal) return;
+  const content = modal.querySelector('div');
+  if (!content) return;
+  content.innerHTML = '';
+  content.style.position = 'relative';
+  content.style.padding = '44px 16px 24px 16px';
+
+  // X 버튼
+  const closeBtn = document.createElement('span');
+  closeBtn.textContent = '×';
+  closeBtn.style.position = 'absolute';
+  closeBtn.style.top = '0px';
+  closeBtn.style.right = '12px';
+  closeBtn.style.fontSize = '2.2rem';
+  closeBtn.style.color = '#888';
+  closeBtn.style.cursor = 'pointer';
+  closeBtn.onclick = () => { modal.remove(); };
+  content.appendChild(closeBtn);
+
+  // 사진 촬영 버튼
+  const btnCamera = document.createElement('button');
+  btnCamera.className = 'next-btn';
+  btnCamera.textContent = '사진 촬영';
+  btnCamera.style.width = '100%';
+  btnCamera.onclick = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.capture = 'environment';
+    input.onchange = (e) => {
+      if (input.files && input.files[0]) handleFileUpload(input.files[0]);
+    };
+    input.click();
+  };
+  content.appendChild(btnCamera);
+
+  // 사진 업로드 버튼
+  const btnUpload = document.createElement('button');
+  btnUpload.className = 'next-btn';
+  btnUpload.textContent = '사진 업로드';
+  btnUpload.style.width = '100%';
+  btnUpload.style.marginTop = '12px';
+  btnUpload.onclick = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = (e) => {
+      if (input.files && input.files[0]) handleFileUpload(input.files[0]);
+    };
+    input.click();
+  };
+  content.appendChild(btnUpload);
+}
+
+function handleFileUpload(file) {
+  const formData = new FormData();
+  formData.append('image', file);
+  fetch('http://3.139.6.169/api/check/image', {
+    method: 'POST',
+    body: formData,
+  })
+    .then(res => res.json())
+    .then(data => {
+      alert('업로드 성공!');
+      // TODO: 결과 처리
+    })
+    .catch(err => {
+      alert('업로드 실패');
+    });
 }
 
 function showManualPriceInput(content, modal) {
@@ -989,7 +1069,7 @@ function updateList(listId, items) {
     li.appendChild(space);
     // 닉네임 클릭 시 삭제 확인
     li.onclick = function(e) {
-      if (e.target === delImg) return; // 아이콘 클릭은 위에서 처리
+      if (e.target === delImg) return;
       if (confirm('닉네임을 삭제할까요?')) {
         deletePerson(index);
       }
@@ -1064,7 +1144,7 @@ window.addEventListener('DOMContentLoaded', function() {
 
   if (helpBtn && helpModal && helpIframe && closeHelpModal) {
     helpBtn.addEventListener('click', function() {
-      helpIframe.src = 'https://observant-education-368.notion.site/2180954879668032a6b0c2d8501bf840?source=copy_link';
+      helpIframe.src = 'https://cdn.glitch.global/332d8fa1-f99a-45b3-8787-25ed7ef4d642/howto.pdf?v=1751382555483';
       helpModal.style.display = 'flex';
     });
     closeHelpModal.addEventListener('click', function() {
