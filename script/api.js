@@ -587,19 +587,6 @@ export function showPriceInputModal() {
   document.body.appendChild(modal);
 }
 
-export function loadNicknamesData() {
-  fetch('data/nicknames.json')
-    .then(response => response.json())
-    .then(data => {
-      setNicknamesData(data);
-      renderPage();
-    })
-    .catch(error => {
-      console.error('Error loading nicknames:', error);
-      renderPage();
-    });
-}
-
 export function generateSettlementId() {
   return 'n' + Date.now() + '_' + Math.random().toString(36).slice(2, 11);
 }

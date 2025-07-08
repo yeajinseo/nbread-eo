@@ -2,7 +2,6 @@
 // 앱 진입점, 상태, 초기화, 페이지 전환
 
 import { renderFirstPage, renderSecondPage, renderThirdPage, renderResultPage } from './ui.js';
-import { loadNicknamesData } from './api.js';
 
 export let pageState = 0; // 0: 첫페이지, 1: 닉네임, 2: 포함항목, 3: 정산결과
 export let selectedClassIndex = null;
@@ -68,9 +67,7 @@ function updateHeaderButton() {
 }
 
 // 앱 초기화
-function initializeApp() {
-  loadNicknamesData();
-}
+function initializeApp() {}
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initializeApp);

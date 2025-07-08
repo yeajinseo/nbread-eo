@@ -162,7 +162,7 @@ export function renderSecondPage(container) {
     li.appendChild(nameSpan);
     // 삭제 버튼 (이미지 링크 수정)
     const delBtn = document.createElement('img');
-    delBtn.src = 'https://cdn.glitch.global/332d8fa1-f99a-45b3-8787-25ed7ef4d642/icon_delete.png?v=1750428694694';
+    delBtn.src = 'resources/icon_delete.png';
     delBtn.alt = '삭제';
     delBtn.className = 'delete-img';
     delBtn.style.height = '0.8em';

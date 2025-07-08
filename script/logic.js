@@ -194,7 +194,7 @@ export function updateList(listId, items) {
     var space = document.createTextNode('  ');
     li.appendChild(space);
     var delImg = document.createElement('img');
-    delImg.src = 'https://cdn.glitch.global/332d8fa1-f99a-45b3-8787-25ed7ef4d642/icon_delete.png?v=1750428694694';
+    delImg.src = 'resources/icon_delete.png';
     delImg.alt = '삭제';
     delImg.className = 'delete-img';
     delImg.title = '삭제';
