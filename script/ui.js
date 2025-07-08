@@ -2,7 +2,32 @@
 // UI 렌더링, 모달, 입력창 등
 
 import { setPageState, setNicknamesData, setSelectedClassIndex, setPersons, setItems, renderPage, pageState, persons, items, nicknamesData, selectedClassIndex } from './app.js';
-import { showPhotoChoiceModal, showPriceInputModal } from './api.js';
+import { showPhotoChoiceModal, showPriceInputModal, getClassList, saveSettlement, loadSettlement, getSettlementResult } from './api.js';
+
+// 전역에 저장
+let settlementId = null;
+function buildSettlementPayload() {
+  const allMembers = persons.map(p => p.name);
+  const members = {
+    all: allMembers,
+    food: persons.filter(p => p.selected?.[0]).map(p => p.name),
+    alcohol: persons.filter(p => p.selected?.[1]).map(p => p.name),
+    beverage: persons.filter(p => p.selected?.[2]).map(p => p.name),
+  };
+  const amount = {
+    food: items[0]?.price || 0,
+    alcohol: items[1]?.price || 0,
+    beverage: items[2]?.price || 0,
+  };
+  const payload = { members, amount };
+  if (!settlementId) {
+    payload.gen = 134;
+    payload.class = (nicknamesData && nicknamesData[selectedClassIndex]?.id) || 1;
+  } else {
+    payload.id = settlementId;
+  }
+  return payload;
+}
 
 export function renderFirstPage(container) {
   container.style.height = '100vh';
@@ -28,14 +53,38 @@ export function renderFirstPage(container) {
   btnNew.style.width = '100%';
   btnNew.style.margin = '24px auto 12px auto';
   btnNew.textContent = '새로 만들기';
-  btnNew.onclick = () => { setPageState(1); renderPage(); };
+  btnNew.onclick = async () => {
+    // 1. 클래스 목록 API 호출
+    const data = await getClassList(134);
+    // 2. nicknamesData 포맷으로 변환 및 저장
+    const classList = data.classes.map(cls => ({ name: cls.name, nicknames: cls.members, id: cls.id }));
+    setNicknamesData(classList);
+    // 3. 첫 번째 클래스 선택 및 멤버 세팅
+    if (classList.length > 0) {
+      setSelectedClassIndex(0);
+      setPersons(classList[0].nicknames.map(nick => ({ name: nick })));
+    } else {
+      setSelectedClassIndex(null);
+      setPersons([]);
+    }
+    setPageState(1);
+    renderPage();
+  };
   centerContainer.appendChild(btnNew);
   const btnLoad = document.createElement('button');
   btnLoad.className = 'next-btn';
   btnLoad.style.width = '100%';
   btnLoad.style.margin = '0 auto';
   btnLoad.textContent = '기존 정보 불러오기';
-  btnLoad.onclick = () => { alert('아직 지원하지 않습니다.'); };
+  btnLoad.onclick = async () => {
+    const id = prompt('불러올 정산 ID를 입력하세요');
+    if (!id) return;
+    const data = await loadSettlement(id);
+    // data.members, data.amount 등으로 persons, items, 선택상태 복원
+    // (여기서 setPersons, setItems 등 사용)
+    // ... 복원 로직 추가 ...
+    renderPage();
+  };
   centerContainer.appendChild(btnLoad);
   container.appendChild(centerContainer);
   const prevBars = document.querySelectorAll('.bottom-bar');
@@ -281,7 +330,17 @@ export function renderThirdPage(container) {
   saveBtn.className = 'next-btn';
   saveBtn.textContent = '진행 상황 저장';
   saveBtn.style.width = '50%';
-  saveBtn.onclick = () => { alert('아직 지원하지 않습니다.'); };
+  saveBtn.onclick = async () => {
+    const payload = buildSettlementPayload();
+    const res = await saveSettlement(payload);
+    console.log('saveSettlement 응답:', res);
+    if (res && res.id) {
+      settlementId = res.id;
+      alert('저장되었습니다! ID: ' + res.id);
+    } else {
+      alert('저장 실패! 서버 응답: ' + JSON.stringify(res));
+    }
+  };
   btnRow.appendChild(saveBtn);
   const nextBtn = document.createElement('button');
   nextBtn.className = 'next-btn';
@@ -299,119 +358,131 @@ export function renderThirdPage(container) {
   prevBars.forEach(bar => bar.remove());
 }
 
-export function renderResultPage(container) {
-  const label = document.createElement('div');
-  label.className = 'first-guide';
-  label.textContent = '정산 결과를 확인해주세요.';
-  container.appendChild(label);
+export async function renderResultPage(container) {
+  if (!settlementId) {
+    alert('정산 ID가 없습니다. 먼저 저장을 해주세요.');
+    return;
+  }
+  try {
+    const label = document.createElement('div');
+    label.className = 'first-guide';
+    label.textContent = '정산 결과를 확인해주세요.';
+    container.appendChild(label);
 
-  // 공유 버튼 영역 추가
-  const shareRow = document.createElement('div');
-  shareRow.style.display = 'flex';
-  shareRow.style.flexDirection = 'row';
-  shareRow.style.justifyContent = 'center';
-  shareRow.style.gap = '12px';
-  shareRow.style.margin = '18px 0';
+    // 공유 버튼 영역 추가
+    const shareRow = document.createElement('div');
+    shareRow.style.display = 'flex';
+    shareRow.style.flexDirection = 'row';
+    shareRow.style.justifyContent = 'center';
+    shareRow.style.gap = '12px';
+    shareRow.style.margin = '18px 0';
 
-  const btnShareImg = document.createElement('button');
-  btnShareImg.className = 'share-btn';
-  btnShareImg.textContent = '이미지로 공유하기';
-  // TODO: 기능 연결
-  shareRow.appendChild(btnShareImg);
+    const btnShareImg = document.createElement('button');
+    btnShareImg.className = 'share-btn';
+    btnShareImg.textContent = '이미지로 공유하기';
+    // TODO: 기능 연결
+    shareRow.appendChild(btnShareImg);
 
-  const btnShareUrl = document.createElement('button');
-  btnShareUrl.className = 'share-btn';
-  btnShareUrl.textContent = 'URL로 공유하기';
-  // TODO: 기능 연결
-  shareRow.appendChild(btnShareUrl);
+    const btnShareUrl = document.createElement('button');
+    btnShareUrl.className = 'share-btn';
+    btnShareUrl.textContent = 'URL로 공유하기';
+    // TODO: 기능 연결
+    shareRow.appendChild(btnShareUrl);
 
-  container.appendChild(shareRow);
-  
-  // 결과 표
-  const table = document.createElement('table');
-  const thead = document.createElement('thead');
-  const trHead = document.createElement('tr');
-  const thName = document.createElement('th');
-  thName.textContent = '닉네임';
-  trHead.appendChild(thName);
-  const thTotal = document.createElement('th');
-  thTotal.textContent = '합계';
-  trHead.appendChild(thTotal);
-  ['안주', '주류', '음료'].forEach(name => {
-    const th = document.createElement('th');
-    th.textContent = name;
-    trHead.appendChild(th);
-  });
-  thead.appendChild(trHead);
-  table.appendChild(thead);
-  const tbody = document.createElement('tbody');
-  
-  // 닉네임별 행
-  persons.forEach((p, pi) => {
-    const tr = document.createElement('tr');
-    const tdName = document.createElement('td');
-    tdName.textContent = p.name;
-    tr.appendChild(tdName);
-    let total = 0;
-    let itemVals = [0,0,0];
-    [0,1,2].forEach(ii => {
-      let val = 0;
-      if (p.selected && p.selected[ii]) {
-        const count = persons.filter(pp => pp.selected && pp.selected[ii]).length;
-        val = count > 0 ? Math.round((items[ii].price || 0) / count) : 0;
-      }
-      itemVals[ii] = val;
-      total += val;
+    container.appendChild(shareRow);
+    
+    // 결과 표
+    const table = document.createElement('table');
+    const thead = document.createElement('thead');
+    const trHead = document.createElement('tr');
+    const thName = document.createElement('th');
+    thName.textContent = '닉네임';
+    trHead.appendChild(thName);
+    const thTotal = document.createElement('th');
+    thTotal.textContent = '합계';
+    trHead.appendChild(thTotal);
+    ['안주', '주류', '음료'].forEach(name => {
+      const th = document.createElement('th');
+      th.textContent = name;
+      trHead.appendChild(th);
     });
-    // 정산금
-    const tdTotal = document.createElement('td');
-    tdTotal.textContent = total.toLocaleString();
-    tr.appendChild(tdTotal);
-    // 각 항목별 금액
-    itemVals.forEach(val => {
+    thead.appendChild(trHead);
+    table.appendChild(thead);
+    const tbody = document.createElement('tbody');
+    
+    // 닉네임별 행
+    persons.forEach((p, pi) => {
+      const tr = document.createElement('tr');
+      const tdName = document.createElement('td');
+      tdName.textContent = p.name;
+      tr.appendChild(tdName);
+      let total = 0;
+      let itemVals = [0,0,0];
+      [0,1,2].forEach(ii => {
+        let val = 0;
+        if (p.selected && p.selected[ii]) {
+          const count = persons.filter(pp => pp.selected && pp.selected[ii]).length;
+          val = count > 0 ? Math.round((items[ii].price || 0) / count) : 0;
+        }
+        itemVals[ii] = val;
+        total += val;
+      });
+      // 정산금
+      const tdTotal = document.createElement('td');
+      tdTotal.textContent = total.toLocaleString();
+      tr.appendChild(tdTotal);
+      // 각 항목별 금액
+      itemVals.forEach(val => {
+        const td = document.createElement('td');
+        td.textContent = val.toLocaleString();
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
+    
+    // 합계 행
+    const trSum = document.createElement('tr');
+    const tdSumName = document.createElement('td');
+    tdSumName.textContent = '합계';
+    trSum.appendChild(tdSumName);
+    // 합계 정산금
+    let sumTotal = 0;
+    let sumItems = [0,0,0];
+    [0,1,2].forEach(ii => {
+      sumItems[ii] = items[ii].price || 0;
+      sumTotal += sumItems[ii];
+    });
+    const tdSumTotal = document.createElement('td');
+    tdSumTotal.textContent = sumTotal.toLocaleString();
+    trSum.appendChild(tdSumTotal);
+    sumItems.forEach(val => {
       const td = document.createElement('td');
       td.textContent = val.toLocaleString();
-      tr.appendChild(td);
+      trSum.appendChild(td);
     });
-    tbody.appendChild(tr);
-  });
-  
-  // 합계 행
-  const trSum = document.createElement('tr');
-  const tdSumName = document.createElement('td');
-  tdSumName.textContent = '합계';
-  trSum.appendChild(tdSumName);
-  // 합계 정산금
-  let sumTotal = 0;
-  let sumItems = [0,0,0];
-  [0,1,2].forEach(ii => {
-    sumItems[ii] = items[ii].price || 0;
-    sumTotal += sumItems[ii];
-  });
-  const tdSumTotal = document.createElement('td');
-  tdSumTotal.textContent = sumTotal.toLocaleString();
-  trSum.appendChild(tdSumTotal);
-  sumItems.forEach(val => {
-    const td = document.createElement('td');
-    td.textContent = val.toLocaleString();
-    trSum.appendChild(td);
-  });
-  tbody.appendChild(trSum);
-  table.appendChild(tbody);
-  container.appendChild(table);
-  
-  // 처음으로 버튼 .next-btn 스타일, 100% width, 가운데 정렬
-  const resetBtn = document.createElement('button');
-  resetBtn.className = 'next-btn';
-  resetBtn.textContent = '처음으로';
-  resetBtn.style.margin = '24px auto 0 auto';
-  resetBtn.style.width = '100%';
-  resetBtn.onclick = () => { location.reload(); };
-  container.appendChild(resetBtn);
-  
-  // 하단 바 제거
-  const prevBars = document.querySelectorAll('.bottom-bar');
-  prevBars.forEach(bar => bar.remove());
+    tbody.appendChild(trSum);
+    table.appendChild(tbody);
+    container.appendChild(table);
+    
+    // 처음으로 버튼 .next-btn 스타일, 100% width, 가운데 정렬
+    const resetBtn = document.createElement('button');
+    resetBtn.className = 'next-btn';
+    resetBtn.textContent = '처음으로';
+    resetBtn.style.margin = '24px auto 0 auto';
+    resetBtn.style.width = '100%';
+    resetBtn.onclick = () => { location.reload(); };
+    container.appendChild(resetBtn);
+    
+    // 하단 바 제거
+    const prevBars = document.querySelectorAll('.bottom-bar');
+    prevBars.forEach(bar => bar.remove());
+
+    const resultArr = await getSettlementResult(settlementId);
+    // TODO: resultArr를 표로 렌더링
+    // ... 표 렌더링 코드 ...
+  } catch (e) {
+    alert('정산 결과를 불러올 수 없습니다.');
+  }
 }
 
 export function showLoadingModal(message) {

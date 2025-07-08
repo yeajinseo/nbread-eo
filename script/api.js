@@ -4,6 +4,8 @@
 import { showLoadingModal, hideLoadingModal, showManualPriceInput } from './ui.js';
 import { renderPage, items, nicknamesData, setNicknamesData } from './app.js';
 
+let settlementId = null; // 파일 상단에 추가
+
 export function handleFileUpload(file) {
   // 파일 크기 체크 (50MB 이하)
   if (file.size > 50 * 1024 * 1024) {
@@ -599,5 +601,44 @@ export function loadNicknamesData() {
 }
 
 export function generateSettlementId() {
-  return 'n' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+  return 'n' + Date.now() + '_' + Math.random().toString(36).slice(2, 11);
+}
+
+export function applyReceiptAnalysis(categories) {
+  // 서버에서 받은 분류 결과를 그대로 사용
+  Object.entries(categories || {}).forEach(([categoryName, categoryData]) => {
+    const totalAmount = categoryData.total || 0;
+    // 해당 카테고리의 기존 항목 찾기
+    const existingItemIndex = items.findIndex(item => item.name === categoryName);
+    if (existingItemIndex !== -1) {
+      items[existingItemIndex].price = totalAmount;
+    } else {
+      // 새로운 항목 추가
+      items.push({ name: categoryName, price: totalAmount });
+    }
+  });
+}
+
+// 1. 클래스 목록 불러오기
+export function getClassList(gen = 134) {
+  return fetch(`https://3.139.6.169:3000/api/class?gen=${gen}`).then(res => res.json());
+}
+
+// 2. 정산 결과 저장/수정
+export function saveSettlement(payload) {
+  return fetch('https://3.139.6.169:3000/api/settlement/save', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  }).then(res => res.json());
+}
+
+// 3. 정산 결과 불러오기
+export function loadSettlement(id) {
+  return fetch(`https://3.139.6.169:3000/api/settlement/load?id=${id}`).then(res => res.json());
+}
+
+// 4. 최종 정산 결과 계산
+export function getSettlementResult(id) {
+  return fetch(`https://3.139.6.169:3000/api/settlement/result?id=${id}`).then(res => res.json());
 } 
