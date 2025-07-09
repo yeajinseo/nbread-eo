@@ -67,7 +67,9 @@ function updateHeaderButton() {
 }
 
 // 앱 초기화
-function initializeApp() {}
+function initializeApp() {
+  renderPage();
+}
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initializeApp);
@@ -88,4 +90,4 @@ export default {
   persons,
   items,
   nicknamesData
-}; 
+};
